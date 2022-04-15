@@ -1,8 +1,9 @@
 import argparse
 import json
 import yaml
+import base64
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 package_name = "devtoys"
 
 def format(file: str):
@@ -32,9 +33,24 @@ def convert(file: str):
     else:
         return 'file type not supported'
 
+def base64_encode(text:str):
+    text_bytes = text.encode('ascii')
+    print(text_bytes)
+    base64_bytes = base64.b64encode(text_bytes)
+    print(base64_bytes)
+    base64_text = base64_bytes.decode('ascii')
+    print(base64_text)
+    return base64_text
+
+def base64_decode(text:str):
+    base64_bytes = text.encode('ascii')
+    text_bytes = base64.b64decode(base64_bytes)
+    text = text_bytes.decode('ascii')
+    return text
+
 example_uses = '''example:
-   devtoys 
-   devtoys '''
+   devtoys format {filename.json}
+   devtoys convert {filename.json}'''
 
 def main(argv = None):
     parser = argparse.ArgumentParser(prog=package_name, description="upload your files on anonfile server", epilog=example_uses, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -45,6 +61,12 @@ def main(argv = None):
 
     convert_parser = subparsers.add_parser("convert", help="convert json to yaml and yaml to json")
     convert_parser.add_argument("file", type=str, help="give file to convert")
+
+    decode_parser = subparsers.add_parser("decode", help="decode text")
+    decode_parser.add_argument("text", type=str, help="give text to decode")
+
+    encode_parser = subparsers.add_parser("encode", help="encode text")
+    encode_parser.add_argument("text", type=str, help="give text to encode")
 
     parser.add_argument('-v',"--version",
                             action="store_true",
@@ -57,6 +79,10 @@ def main(argv = None):
         return format(args.file)
     elif args.command == "convert":
         return convert(args.file)
+    elif args.command == "decode":
+        return base64_decode(args.text)
+    elif args.command == "encode":
+        return base64_encode(args.text)
     elif args.version:
         return print(__version__)
     else:
