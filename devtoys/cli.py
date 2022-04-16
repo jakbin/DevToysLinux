@@ -2,8 +2,10 @@ import argparse
 import json
 import yaml
 import base64
+from html import escape, unescape
+from urllib.parse import quote, unquote
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 package_name = "devtoys"
 
 def format(file: str):
@@ -35,18 +37,55 @@ def convert(file: str):
 
 def base64_encode(text:str):
     text_bytes = text.encode('ascii')
-    print(text_bytes)
     base64_bytes = base64.b64encode(text_bytes)
-    print(base64_bytes)
     base64_text = base64_bytes.decode('ascii')
-    print(base64_text)
-    return base64_text
+    return print(base64_text)
 
 def base64_decode(text:str):
     base64_bytes = text.encode('ascii')
     text_bytes = base64.b64decode(base64_bytes)
     text = text_bytes.decode('ascii')
-    return text
+    return print(text)
+
+def html_encode(html:str):
+    return print(escape(html))
+
+def html_decode(html:str):
+    return print(unescape(html))
+
+def url_encode(url:str):
+    return print(quote(url, safe=''))
+
+def url_decode(url:str):
+    return print(unquote(url))
+
+def encode():
+    num = input("Encode:- \n(1) base64 \n(2) html \n(3) url \nSelect option: ")
+    if str(num) == '1':
+        text = input('Enter your text: ')
+        base64_encode(str(text))
+    elif str(num) == '2':
+        html = input('Enter your html: ')
+        html_encode(html)
+    elif str(num) == '3':
+        url = input('Enter your url: ')
+        url_encode(url)
+    else:
+        return 'Wrong option selected.'
+
+def decode():
+    num = input("Decode:- \n(1) base64 \n(2) html \n(3) url \nSelect option: ")
+    if str(num) == '1':
+        text = input('Enter your base64: ')
+        base64_decode(str(text))
+    elif str(num) == '2':
+        html = input('Enter your html: ')
+        html_decode(html)
+    elif str(num) == '3':
+        url = input('Enter your url: ')
+        url_decode(url)
+    else:
+        return 'Wrong option selected.'
 
 example_uses = '''example:
    devtoys format {filename.json}
@@ -63,10 +102,8 @@ def main(argv = None):
     convert_parser.add_argument("file", type=str, help="give file to convert")
 
     decode_parser = subparsers.add_parser("decode", help="decode text")
-    decode_parser.add_argument("text", type=str, help="give text to decode")
 
     encode_parser = subparsers.add_parser("encode", help="encode text")
-    encode_parser.add_argument("text", type=str, help="give text to encode")
 
     parser.add_argument('-v',"--version",
                             action="store_true",
@@ -80,9 +117,9 @@ def main(argv = None):
     elif args.command == "convert":
         return convert(args.file)
     elif args.command == "decode":
-        return base64_decode(args.text)
+        return decode()
     elif args.command == "encode":
-        return base64_encode(args.text)
+        return encode()
     elif args.version:
         return print(__version__)
     else:
