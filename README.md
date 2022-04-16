@@ -26,3 +26,8 @@ devtoys convert {filename.json}
     - Json
 - Encoders / Decoders
     - Base64
+    - Html
+    - Url
+
+## To do :
+- [ ] Gui client
