@@ -24,10 +24,12 @@ devtoys convert {filename.json}
     - Json <> Yaml
 - Formatters
     - Json
+    - Xml
 - Encoders / Decoders
     - Base64
     - Html
     - Url
+- Number Base Converter
 
 ## To do :
 - [ ] Gui client
