@@ -4,16 +4,32 @@ import yaml
 import base64
 from html import escape, unescape
 from urllib.parse import quote, unquote
+from xml.dom.minidom import parse
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 package_name = "devtoys"
 
-def format(file: str):
+def format_json(file: str):
 	with open(file, 'r+') as f:
 		data = json.load(f)
 		f.seek(0)
 		rdata = json.dumps(data, indent=4, sort_keys=True)
 		f.write(rdata)
+
+def format_xml(file: str):
+    with open(file, 'r+') as f:
+        data = parse(f)
+        f.seek(0)
+        rdata = data.toprettyxml()
+        f.write(rdata)
+
+def format(file: str):
+    if file.endswith('json'):
+        format_json(file)
+    elif file.endswith('xml'):
+        format_xml(file)
+    else:
+        return 'file type not supported'
 
 def json_to_yaml(file: str):
 	data = yaml.dump(json.load(open(file)))
@@ -60,32 +76,38 @@ def url_decode(url:str):
     return print(unquote(url))
 
 def encode():
-    num = input("Encode:- \n(1) base64 \n(2) html \n(3) url \nSelect option: ")
+    num = str(input("Encode:- \n(1) base64 \n(2) html \n(3) url \nSelect option: "))
     if str(num) == '1':
         text = input('Enter your text: ')
         base64_encode(str(text))
-    elif str(num) == '2':
+    elif num == '2':
         html = input('Enter your html: ')
         html_encode(html)
-    elif str(num) == '3':
+    elif num == '3':
         url = input('Enter your url: ')
         url_encode(url)
     else:
         return 'Wrong option selected.'
 
 def decode():
-    num = input("Decode:- \n(1) base64 \n(2) html \n(3) url \nSelect option: ")
-    if str(num) == '1':
+    num = str(input("Decode:- \n(1) base64 \n(2) html \n(3) url \nSelect option: "))
+    if num == '1':
         text = input('Enter your base64: ')
         base64_decode(str(text))
-    elif str(num) == '2':
+    elif num == '2':
         html = input('Enter your html: ')
         html_decode(html)
-    elif str(num) == '3':
+    elif num == '3':
         url = input('Enter your url: ')
         url_decode(url)
     else:
         return 'Wrong option selected.'
+
+def numberBaseConverter():
+    num = int(input('Enter number: '))
+    print(f"{num} in Hexadecimal: {hex(num)}")
+    print(f"{num} in Octal: {oct(num)}")
+    print(f"{num} in Binary: {bin(num)}")
 
 example_uses = '''example:
    devtoys format {filename.json}
@@ -95,15 +117,17 @@ def main(argv = None):
     parser = argparse.ArgumentParser(prog=package_name, description="upload your files on anonfile server", epilog=example_uses, formatter_class=argparse.RawDescriptionHelpFormatter)
     subparsers = parser.add_subparsers(dest="command")
 
-    format_parser = subparsers.add_parser("format", help="format json files")
-    format_parser.add_argument("file", type=str, help="give file to format")
+    format_parser = subparsers.add_parser("format", help="format json and xml files")
+    format_parser.add_argument("file", type=str, help="give json or xml file to format")
 
     convert_parser = subparsers.add_parser("convert", help="convert json to yaml and yaml to json")
-    convert_parser.add_argument("file", type=str, help="give file to convert")
+    convert_parser.add_argument("file", type=str, help="give json or yaml file to convert")
 
     decode_parser = subparsers.add_parser("decode", help="decode text")
 
     encode_parser = subparsers.add_parser("encode", help="encode text")
+
+    numberBaseConverter_parser = subparsers.add_parser('number', help="Number Base Converter")
 
     parser.add_argument('-v',"--version",
                             action="store_true",
@@ -120,6 +144,8 @@ def main(argv = None):
         return decode()
     elif args.command == "encode":
         return encode()
+    elif args.command == 'number':
+        return numberBaseConverter()
     elif args.version:
         return print(__version__)
     else:
